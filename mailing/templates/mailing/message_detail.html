@@ -1,0 +1,50 @@
+<!-- mailing/templates/mailing/message_detail.html -->
+{% extends 'base.html' %}
+
+{% block title %}{{ message.subject }}{% endblock %}
+
+{% block content %}
+<nav aria-label="breadcrumb" class="mb-4">
+    <ol class="breadcrumb">
+        <li class="breadcrumb-item"><a href="{% url 'mailing:home' %}">Главная</a></li>
+        <li class="breadcrumb-item"><a href="{% url 'mailing:message_list' %}">Сообщения</a></li>
+        <li class="breadcrumb-item active">{{ message.subject|truncatechars:30 }}</li>
+    </ol>
+</nav>
+
+<div class="card">
+    <div class="card-header bg-primary text-white">
+        <h4 class="mb-0">{{ message.subject }}</h4>
+    </div>
+    <div class="card-body">
+        <div class="bg-light p-4 rounded">
+            {{ message.body|linebreaks }}
+        </div>
+
+        <hr class="my-4">
+
+        <div class="row text-muted small">
+            <div class="col-md-6">
+                <strong>Создано:</strong> {{ message.created_at|date:"d.m.Y H:i" }}
+            </div>
+            <div class="col-md-6">
+                <strong>Обновлено:</strong> {{ message.updated_at|date:"d.m.Y H:i" }}
+            </div>
+        </div>
+
+        <hr>
+
+        <div class="d-flex gap-2">
+            <a href="{% url 'mailing:message_update' message.pk %}" class="btn btn-warning">
+                <i class="bi bi-pencil"></i> Редактировать
+            </a>
+            <a href="{% url 'mailing:message_delete' message.pk %}" class="btn btn-danger">
+                <i class="bi bi-trash"></i> Удалить
+            </a>
+            <a href="{% url 'mailing:message_list' %}" class="btn btn-secondary">
+                <i class="bi bi-arrow-left"></i> К списку
+            </a>
+        </div>
+    </div>
+</div>
+{% endblock %}
