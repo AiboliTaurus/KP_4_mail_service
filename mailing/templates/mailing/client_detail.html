@@ -1,0 +1,60 @@
+<!-- mailing/templates/mailing/client_detail.html -->
+{% extends 'base.html' %}
+
+{% block title %}{{ client.full_name }}{% endblock %}
+
+{% block content %}
+<nav aria-label="breadcrumb" class="mb-4">
+    <ol class="breadcrumb">
+        <li class="breadcrumb-item"><a href="{% url 'mailing:home' %}">Главная</a></li>
+        <li class="breadcrumb-item"><a href="{% url 'mailing:client_list' %}">Получатели</a></li>
+        <li class="breadcrumb-item active">{{ client.full_name }}</li>
+    </ol>
+</nav>
+
+<div class="card">
+    <div class="card-header bg-primary text-white">
+        <h4 class="mb-0">{{ client.full_name }}</h4>
+    </div>
+    <div class="card-body">
+        <div class="row mb-3">
+            <div class="col-md-3 fw-bold">Email:</div>
+            <div class="col-md-9">{{ client.email }}</div>
+        </div>
+        <div class="row mb-3">
+            <div class="col-md-3 fw-bold">ФИО:</div>
+            <div class="col-md-9">{{ client.full_name }}</div>
+        </div>
+        <div class="row mb-3">
+            <div class="col-md-3 fw-bold">Комментарий:</div>
+            <div class="col-md-9">{{ client.comment|default:"-" }}</div>
+        </div>
+        <div class="row mb-3">
+            <div class="col-md-3 fw-bold">Владелец:</div>
+            <div class="col-md-9">{{ client.owner.email|default:"Не указан" }}</div>
+        </div>
+        <div class="row mb-3">
+            <div class="col-md-3 fw-bold">Дата создания:</div>
+            <div class="col-md-9">{{ client.created_at|date:"d.m.Y H:i" }}</div>
+        </div>
+        <div class="row mb-3">
+            <div class="col-md-3 fw-bold">Последнее обновление:</div>
+            <div class="col-md-9">{{ client.updated_at|date:"d.m.Y H:i" }}</div>
+        </div>
+
+        <hr>
+
+        <div class="d-flex gap-2">
+            <a href="{% url 'mailing:client_update' client.pk %}" class="btn btn-warning">
+                <i class="bi bi-pencil"></i> Редактировать
+            </a>
+            <a href="{% url 'mailing:client_delete' client.pk %}" class="btn btn-danger">
+                <i class="bi bi-trash"></i> Удалить
+            </a>
+            <a href="{% url 'mailing:client_list' %}" class="btn btn-secondary">
+                <i class="bi bi-arrow-left"></i> К списку
+            </a>
+        </div>
+    </div>
+</div>
+{% endblock %}
