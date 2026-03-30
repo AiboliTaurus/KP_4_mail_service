@@ -54,6 +54,4 @@
 | **Frontend** | Bootstrap 5, HTML/CSS |
 | **Язык** | Python 3.11+ |
 
----
 
-## 📁 Структура проекта
