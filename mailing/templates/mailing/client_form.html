@@ -1,0 +1,83 @@
+<!-- mailing/templates/mailing/client_form.html -->
+{% extends 'base.html' %}
+
+{% block title %}{% if object %}Редактирование{% else %}Создание{% endif %} получателя{% endblock %}
+
+{% block content %}
+<div class="row justify-content-center">
+    <div class="col-md-6">
+        <div class="card">
+            <div class="card-header bg-primary text-white">
+                <h4 class="mb-0">
+                    {% if object %}
+                        <i class="bi bi-pencil"></i> Редактирование получателя
+                    {% else %}
+                        <i class="bi bi-plus-circle"></i> Добавление получателя
+                    {% endif %}
+                </h4>
+            </div>
+            <div class="card-body">
+                <form method="post">
+                    {% csrf_token %}
+
+                    {% if form.errors %}
+                        <div class="alert alert-danger">
+                            <strong>Пожалуйста, исправьте следующие ошибки:</strong>
+                            <ul class="mb-0 mt-2">
+                                {% for field in form %}
+                                    {% for error in field.errors %}
+                                        <li><strong>{{ field.label }}:</strong> {{ error }}</li>
+                                    {% endfor %}
+                                {% endfor %}
+                            </ul>
+                        </div>
+                    {% endif %}
+
+                    <div class="mb-3">
+                        <label for="{{ form.email.id_for_label }}" class="form-label">
+                            {{ form.email.label }} <span class="text-danger">*</span>
+                        </label>
+                        {{ form.email }}
+                        {% if form.email.help_text %}
+                            <div class="form-text text-muted">{{ form.email.help_text }}</div>
+                        {% endif %}
+                    </div>
+
+                    <div class="mb-3">
+                        <label for="{{ form.full_name.id_for_label }}" class="form-label">
+                            {{ form.full_name.label }} <span class="text-danger">*</span>
+                        </label>
+                        {{ form.full_name }}
+                        {% if form.full_name.help_text %}
+                            <div class="form-text text-muted">{{ form.full_name.help_text }}</div>
+                        {% endif %}
+                    </div>
+
+                    <div class="mb-3">
+                        <label for="{{ form.comment.id_for_label }}" class="form-label">
+                            {{ form.comment.label }}
+                        </label>
+                        {{ form.comment }}
+                        {% if form.comment.help_text %}
+                            <div class="form-text text-muted">{{ form.comment.help_text }}</div>
+                        {% endif %}
+                    </div>
+
+                    <hr>
+
+                    <div class="d-flex justify-content-between">
+                        <a href="{% if object %}{% url 'mailing:client_detail' object.pk %}{% else %}{% url 'mailing:client_list' %}{% endif %}"
+                           class="btn btn-outline-secondary">
+                            <i class="bi bi-arrow-left"></i> Отмена
+                        </a>
+                        <button type="submit" class="btn btn-success">
+                            <i class="bi bi-save"></i>
+                            {% if object %}Сохранить изменения{% else %}Добавить получателя{% endif %}
+                        </button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

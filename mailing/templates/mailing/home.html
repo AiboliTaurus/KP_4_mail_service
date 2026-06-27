@@ -1,0 +1,53 @@
+{% extends 'base.html' %}
+
+{% block title %}Главная - Сервис рассылок{% endblock %}
+
+{% block content %}
+<div class="text-center">
+    <h1 class="display-4">Сервис управления рассылками</h1>
+    <p class="lead">Управляйте своими рассылками, отслеживайте статистику</p>
+    
+    {% if user.is_authenticated %}
+        <div class="row mt-5 mb-4">
+            <div class="col-md-4">
+                <div class="card bg-primary text-white">
+                    <div class="card-body">
+                        <h3>{{ total_mailings|default:0 }}</h3>
+                        <p>Всего рассылок</p>
+                    </div>
+                </div>
+            </div>
+            <div class="col-md-4">
+                <div class="card bg-success text-white">
+                    <div class="card-body">
+                        <h3>{{ active_mailings|default:0 }}</h3>
+                        <p>Активных рассылок</p>
+                    </div>
+                </div>
+            </div>
+            <div class="col-md-4">
+                <div class="card bg-info text-white">
+                    <div class="card-body">
+                        <h3>{{ unique_clients|default:0 }}</h3>
+                        <p>Получателей</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+        
+        <div class="mt-4">
+            <a href="{% url 'mailing:mailing_create' %}" class="btn btn-success btn-lg me-2">
+                Создать рассылку
+            </a>
+            <a href="{% url 'mailing:mailing_list' %}" class="btn btn-info btn-lg">
+                Мои рассылки
+            </a>
+        </div>
+    {% else %}
+        <div class="mt-4">
+            <a href="{% url 'users:register' %}" class="btn btn-primary btn-lg me-2">Регистрация</a>
+            <a href="{% url 'users:login' %}" class="btn btn-outline-primary btn-lg">Вход</a>
+        </div>
+    {% endif %}
+</div>
+{% endblock %}

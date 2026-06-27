@@ -1,0 +1,205 @@
+<!-- mailing/templates/mailing/mailing_detail.html -->
+{% extends 'base.html' %}
+
+{% block title %}Рассылка #{{ mailing.id }}{% endblock %}
+
+{% block content %}
+<nav aria-label="breadcrumb" class="mb-4">
+    <ol class="breadcrumb">
+        <li class="breadcrumb-item"><a href="{% url 'mailing:home' %}">Главная</a></li>
+        <li class="breadcrumb-item"><a href="{% url 'mailing:mailing_list' %}">Рассылки</a></li>
+        <li class="breadcrumb-item active">Рассылка #{{ mailing.id }}</li>
+    </ol>
+</nav>
+
+<div class="row">
+    <div class="col-md-8">
+        <div class="card mb-4">
+            <div class="card-header bg-primary text-white">
+                <h4 class="mb-0">Информация о рассылке</h4>
+            </div>
+            <div class="card-body">
+                <div class="row mb-3">
+                    <div class="col-md-3 fw-bold">Статус:</div>
+                    <div class="col-md-9">
+                        <span class="badge {% if mailing.status == 'started' %}bg-success
+                                          {% elif mailing.status == 'created' %}bg-warning
+                                          {% elif mailing.status == 'completed' %}bg-secondary
+                                          {% else %}bg-danger{% endif %} fs-6">
+                            {{ mailing.get_status_display }}
+                        </span>
+                    </div>
+                </div>
+                <div class="row mb-3">
+                    <div class="col-md-3 fw-bold">Дата начала:</div>
+                    <div class="col-md-9">{{ mailing.start_time|date:"d.m.Y H:i" }}</div>
+                </div>
+                <div class="row mb-3">
+                    <div class="col-md-3 fw-bold">Дата окончания:</div>
+                    <div class="col-md-9">{{ mailing.end_time|date:"d.m.Y H:i" }}</div>
+                </div>
+                <div class="row mb-3">
+                    <div class="col-md-3 fw-bold">Владелец:</div>
+                    <div class="col-md-9">{{ mailing.owner.email|default:"Не указан" }}</div>
+                </div>
+                <div class="row mb-3">
+                    <div class="col-md-3 fw-bold">Создана:</div>
+                    <div class="col-md-9">{{ mailing.created_at|date:"d.m.Y H:i" }}</div>
+                </div>
+                <div class="row mb-3">
+                    <div class="col-md-3 fw-bold">Обновлена:</div>
+                    <div class="col-md-9">{{ mailing.updated_at|date:"d.m.Y H:i" }}</div>
+                </div>
+            </div>
+        </div>
+
+        <div class="card mb-4">
+            <div class="card-header bg-info text-white">
+                <h4 class="mb-0">Сообщение</h4>
+            </div>
+            <div class="card-body">
+                <h5>{{ mailing.message.subject }}</h5>
+                <hr>
+                <div class="bg-light p-3 rounded">
+                    {{ mailing.message.body|linebreaks }}
+                </div>
+            </div>
+        </div>
+
+        <div class="card mb-4">
+            <div class="card-header bg-success text-white">
+                <h4 class="mb-0">Получатели ({{ mailing.recipients.count }})</h4>
+            </div>
+            <div class="card-body">
+                {% if mailing.recipients.all %}
+                    <div class="table-responsive">
+                        <table class="table table-sm table-hover">
+                            <thead class="table-light">
+                                <tr>
+                                    <th>Email</th>
+                                    <th>ФИО</th>
+                                    <th>Комментарий</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                {% for client in mailing.recipients.all %}
+                                <tr>
+                                    <td>{{ client.email }}</td>
+                                    <td>{{ client.full_name }}</td>
+                                    <td>{{ client.comment|default:"-"|truncatechars:50 }}</td>
+                                </tr>
+                                {% endfor %}
+                            </tbody>
+                        </table>
+                    </div>
+                {% else %}
+                    <p class="text-muted text-center">Нет получателей</p>
+                {% endif %}
+            </div>
+        </div>
+
+        <div class="card">
+            <div class="card-header bg-secondary text-white">
+                <h4 class="mb-0">Попытки отправки</h4>
+            </div>
+            <div class="card-body">
+                {% if attempts %}
+                    <div class="table-responsive">
+                        <table class="table table-sm table-hover">
+                            <thead class="table-light">
+                                <tr>
+                                    <th>Дата и время</th>
+                                    <th>Получатель</th>
+                                    <th>Статус</th>
+                                    <th>Ответ сервера</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                {% for attempt in attempts %}
+                                <tr>
+                                    <td>{{ attempt.attempt_time|date:"d.m.Y H:i:s" }}</td>
+                                    <td>{{ attempt.client.email|default:"-" }}</td>
+                                    <td>
+                                        <span class="badge {% if attempt.status == 'success' %}bg-success{% else %}bg-danger{% endif %}">
+                                            {{ attempt.get_status_display }}
+                                        </span>
+                                    </td>
+                                    <td>{{ attempt.server_response|truncatechars:100|default:"-" }}</td>
+                                </tr>
+                                {% endfor %}
+                            </tbody>
+                        </table>
+                    </div>
+                    {% if mailing.attempts.count > 20 %}
+                        <p class="text-muted text-center mt-2 small">Показаны последние 20 попыток из {{ mailing.attempts.count }}</p>
+                    {% endif %}
+                {% else %}
+                    <p class="text-muted text-center">Пока нет попыток отправки</p>
+                {% endif %}
+            </div>
+        </div>
+    </div>
+
+    <div class="col-md-4">
+        <div class="card mb-4">
+            <div class="card-header bg-primary text-white">
+                <h4 class="mb-0">Действия</h4>
+            </div>
+            <div class="card-body">
+                <div class="d-grid gap-2">
+                    {% if mailing.can_send %}
+                        <form method="post" action="{% url 'mailing:mailing_send' mailing.pk %}">
+                            {% csrf_token %}
+                            <button type="submit" class="btn btn-success w-100 mb-2"
+                                    onclick="return confirm('Отправить рассылку сейчас?')">
+                                <i class="bi bi-send"></i> Отправить сейчас
+                            </button>
+                        </form>
+                    {% else %}
+                        <button class="btn btn-secondary w-100 mb-2" disabled>
+                            <i class="bi bi-clock"></i> Отправка недоступна
+                        </button>
+                        <small class="text-muted text-center d-block">
+                            Рассылка может быть отправлена только между<br>
+                            {{ mailing.start_time|date:"d.m.Y H:i" }} и {{ mailing.end_time|date:"d.m.Y H:i" }}
+                        </small>
+                    {% endif %}
+
+                    <a href="{% url 'mailing:mailing_update' mailing.pk %}" class="btn btn-warning w-100 mb-2">
+                        <i class="bi bi-pencil"></i> Редактировать
+                    </a>
+                    <a href="{% url 'mailing:mailing_delete' mailing.pk %}" class="btn btn-danger w-100 mb-2">
+                        <i class="bi bi-trash"></i> Удалить
+                    </a>
+                    <a href="{% url 'mailing:mailing_list' %}" class="btn btn-secondary w-100">
+                        <i class="bi bi-arrow-left"></i> К списку
+                    </a>
+                </div>
+            </div>
+        </div>
+
+        <div class="card">
+            <div class="card-header bg-info text-white">
+                <h4 class="mb-0">Статистика</h4>
+            </div>
+            <div class="card-body text-center">
+                <div class="row">
+                    <div class="col-6">
+                        <h3 class="text-success">{{ success_count }}</h3>
+                        <small class="text-muted">Успешно</small>
+                    </div>
+                    <div class="col-6">
+                        <h3 class="text-danger">{{ failed_count }}</h3>
+                        <small class="text-muted">Неудачно</small>
+                    </div>
+                </div>
+                <hr>
+                <p class="mb-0">Всего попыток: <strong>{{ attempts|length }}</strong></p>
+                {% if mailing.attempts.count > 20 %}
+                    <small class="text-muted">(показано {{ attempts|length }} из {{ mailing.attempts.count }})</small>
+                {% endif %}
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
